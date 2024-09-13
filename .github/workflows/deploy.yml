@@ -34,6 +34,7 @@ jobs:
       # Step 3: Build Docker image and tag with Git SHA
       - name: Build the Docker image
         run: |
+          cd my-sample-app
           export TAG=${{ github.sha }}  # Use Git commit SHA for unique image tag
           docker build -t 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${TAG} .
 
