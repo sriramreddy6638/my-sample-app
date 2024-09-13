@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: my-app
-        image: 430118812416.dkr.ecr.us-west-2.amazonaws.com/my-app:${{ github.sha }}
+        image: 4430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }}
         ports:
         - containerPort: 3000
