@@ -6,12 +6,10 @@ on:
         title:
           description: 'Title for the release'
           required: false
-        # version:
-        #   description: 'Version to release'
-        #   required: true
         description:
           description: 'Description for the release'
           required: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,40 +18,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 1: Configure AWS credentials for ECR & EKS access
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
+          aws-region: ap-south-1
 
+      # Step 2: Log in to Amazon ECR
       - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app
 
+      # Step 3: Build Docker image and tag with Git SHA
       - name: Build the Docker image
         run: |
-          docker build -t my-app:latest .
+          export TAG=${{ github.sha }}  # Use Git commit SHA for unique image tag
+          docker build -t 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${TAG} .
 
-      - name: Tag the Docker image with Git SHA
-        run: |
-          export TAG=${{ github.sha }}
-          docker tag my-app:latest 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${TAG}
-
+      # Step 4: Push Docker image to Amazon ECR
       - name: Push the Docker image to Amazon ECR
         run: |
           docker push 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }}
 
+      # Step 5: Install kubectl (specific for AWS)
       - name: Set up kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x ./kubectl
           sudo mv ./kubectl /usr/local/bin/kubectl
 
+      # Step 6: Update kubeconfig to access EKS
       - name: Update kubeconfig
         run: |
           aws eks --region ap-south-1 update-kubeconfig --name my-eks-cluster
+
+      # Step 7: Deploy to Kubernetes (using the new image)
       - name: Deploy to Kubernetes
         run: |
+          kubectl set image deployment/my-app my-app=430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }} --record
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
