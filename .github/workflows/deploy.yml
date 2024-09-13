@@ -1,10 +1,17 @@
 name: Build, Tag, and Push to ECR
 
 on:
-  push:
-    branches:
-      - main
-
+    workflow_dispatch:
+      inputs:
+        title:
+          description: 'Title for the release'
+          required: false
+        # version:
+        #   description: 'Version to release'
+        #   required: true
+        description:
+          description: 'Description for the release'
+          required: false
 jobs:
   build:
     runs-on: ubuntu-latest
