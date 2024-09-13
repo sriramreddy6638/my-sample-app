@@ -29,7 +29,7 @@ jobs:
 
       - name: Log in to Amazon ECR
         run: |
-          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 430118812416.dkr.ecr.us-west-2.amazonaws.com
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app
 
       - name: Build the Docker image
         run: |
@@ -38,11 +38,11 @@ jobs:
       - name: Tag the Docker image with Git SHA
         run: |
           export TAG=${{ github.sha }}
-          docker tag my-app:latest 430118812416.dkr.ecr.us-west-2.amazonaws.com/my-app:${TAG}
+          docker tag my-app:latest 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${TAG}
 
       - name: Push the Docker image to Amazon ECR
         run: |
-          docker push 430118812416.dkr.ecr.us-west-2.amazonaws.com/my-app:${{ github.sha }}
+          docker push 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }}
 
       - name: Set up kubectl
         run: |
