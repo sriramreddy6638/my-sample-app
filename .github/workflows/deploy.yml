@@ -40,7 +40,7 @@ jobs:
 
       # Step 4: Push Docker image to Amazon ECR
       - name: Push the Docker image to Amazon ECR
-        run: |
+        run: | 
           docker push 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }}
 
       # Step 5: Install kubectl (specific for AWS)
@@ -58,6 +58,7 @@ jobs:
       # Step 7: Deploy to Kubernetes (using the new image)
       - name: Deploy to Kubernetes
         run: |
+          cd my-sample-app
           kubectl set image deployment/my-app my-app=430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }} --record
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
