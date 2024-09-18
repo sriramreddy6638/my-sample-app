@@ -29,19 +29,19 @@ jobs:
       # Step 2: Log in to Amazon ECR
       - name: Log in to Amazon ECR
         run: |
-          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 307546041091.dkr.ecr.ap-south-1.amazonaws.com/my-app
 
       # Step 3: Build Docker image and tag with Git SHA
       - name: Build the Docker image
         run: |
           cd my-sample-app
           export TAG=${{ github.sha }}  # Use Git commit SHA for unique image tag
-          docker build -t 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${TAG} .
+          docker build -t 307546041091.dkr.ecr.ap-south-1.amazonaws.com/my-app:${TAG} .
 
       # Step 4: Push Docker image to Amazon ECR
       - name: Push the Docker image to Amazon ECR
         run: | 
-          docker push 430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }}
+          docker push 307546041091.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }}
 
       # Step 5: Install kubectl (specific for AWS)
       - name: Set up kubectl
@@ -59,6 +59,6 @@ jobs:
       - name: Deploy to Kubernetes
         run: |
           cd my-sample-app
-          kubectl set image deployment/my-app my-app=430118812416.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }} --record
+          kubectl set image deployment/my-app my-app=307546041091.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }} --record
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
