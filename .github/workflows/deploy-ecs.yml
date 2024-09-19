@@ -1,0 +1,53 @@
+name: Build, Tag, and Push to ECR
+
+on:
+    workflow_dispatch:
+      inputs:
+        title:
+          description: 'Title for the release'
+          required: false
+        description:
+          description: 'Description for the release'
+          required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 1: Configure AWS credentials for ECR & EKS access
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      # Step 2: Log in to Amazon ECR
+      - name: Log in to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 307546041091.dkr.ecr.ap-south-1.amazonaws.com/my-app
+
+      # Step 3: Build Docker image and tag with Git SHA
+      - name: Build the Docker image
+        run: |
+          cd my-sample-app
+          export TAG=${{ github.sha }}  # Use Git commit SHA for unique image tag
+          docker build -t 307546041091.dkr.ecr.ap-south-1.amazonaws.com/my-app:${TAG} .
+
+      # Step 4: Push Docker image to Amazon ECR
+      - name: Push the Docker image to Amazon ECR
+        run: | 
+          docker push 307546041091.dkr.ecr.ap-south-1.amazonaws.com/my-app:${{ github.sha }}
+
+      - name: Deploy to AWS ECS
+        run: |
+          cd my-sample-app
+          python3 deploy.py
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_DEFAULT_REGION: ap-south-1
