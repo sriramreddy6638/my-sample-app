@@ -1,4 +1,4 @@
-name: Build, Tag, and Push to ECR
+name: Build, Tag, and Push to EKS
 
 on:
     workflow_dispatch:

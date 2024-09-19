@@ -18,6 +18,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+  
+      - name: Install dependencies
+        run: |
+          pip install boto3    
+
       # Step 1: Configure AWS credentials for ECR & EKS access
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
